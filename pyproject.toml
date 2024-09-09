@@ -1,0 +1,40 @@
+[tool.poetry]
+name = "aac-learning-assets"
+version = "0.1.0"
+description = "AI-powered learning asset generator for special education"
+authors = ["None"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+streamlit = "^1.22.0"
+pandas = "^1.5.3"
+python-docx = "^0.8.11"
+reportlab = "^3.6.12"
+openai = "^0.27.6"
+pydantic = "^1.10.7"
+pillow = "^10.4.0"
+beautifulsoup4 = "^4.12.3"
+markdown = "^3.6"
+
+[tool.poetry.dev-dependencies]
+pytest = "^7.3.1"
+black = "^23.3.0"
+isort = "^5.12.0"
+flake8 = "^6.0.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 100
+target-version = ['py310']
+
+[tool.isort]
+profile = "black"
+line_length = 100
+
+[tool.flake8]
+max-line-length = 100
+extend-ignore = "E203, W503"
