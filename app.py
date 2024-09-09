@@ -46,7 +46,7 @@ async def get_board_prompt_word_data_async(session, api_key, board_id):
         else:
             raise Exception(f"GetBoardPromptWordData API 調用失敗，狀態碼 {response.status}")
 
-async def generate_learning_asset_async(case_info, learn_assets_contents, prompt, model="gpt-4-1106-preview"):
+async def generate_learning_asset_async(case_info, learn_assets_contents, prompt, model="gpt-4o-mini"):
     full_prompt = prompt.replace("<case_info>", case_info)
     full_prompt = full_prompt.replace("<learn_assets_contents>", learn_assets_contents)
     logger.info(f"full_prompt:{full_prompt}")
