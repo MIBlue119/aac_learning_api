@@ -328,14 +328,14 @@ def main():
                 mime="application/pdf",
             )
             # Export as JSON
-            json_str = learning_asset.json(ensure_ascii=False, indent=2)
-            json_bytes = json_str.encode('utf-8')
-            st.download_button(
-                label="下載 JSON",
-                data=BytesIO(json_bytes),
-                file_name="learning_asset.json",
-                mime="application/json",
-            )
+            # json_str = learning_asset.json(ensure_ascii=False, indent=2)
+            # json_bytes = json_str.encode('utf-8')
+            # st.download_button(
+            #     label="下載 JSON",
+            #     data=BytesIO(json_bytes),
+            #     file_name="learning_asset.json",
+            #     mime="application/json",
+            # )
             # Display Lesson Plan
             st.header("教案")
             
