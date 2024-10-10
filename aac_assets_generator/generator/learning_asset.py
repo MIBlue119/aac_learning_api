@@ -11,7 +11,7 @@ from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.platypus import PageBreak, Paragraph, SimpleDocTemplate, Table, TableStyle
 
 from aac_assets_generator.learning_asset_models import LearningAsset, LessonPlan, WorksheetSection
-
+import streamlit as st
 
 class LearningAssetGenerator:
     """生成學習單/教案"""
@@ -196,3 +196,92 @@ class LearningAssetGenerator:
         doc.build(elements)
         buffer.seek(0)
         return buffer
+
+
+    def render_at_streamlit(self, learning_asset):
+        st.success("學習單已生成!")
+        # Export options
+        st.subheader("匯出學習單")
+        pdf_buffer = self.markdown_to_pdf(learning_asset)
+        st.download_button(
+            label="下載 PDF",
+            data=pdf_buffer,
+            file_name="learning_asset.pdf",
+            mime="application/pdf",
+        )
+        st.header("教案")
+        lesson_plan_data = [
+            ["教案名稱", learning_asset.lesson_plan.title],
+            ["教學目標", learning_asset.lesson_plan.objectives],
+            [
+                "教學內容",
+                "\n".join(
+                    [
+                        f"{i+1}. {content}"
+                        for i, content in enumerate(learning_asset.lesson_plan.content)
+                    ]
+                ),
+            ],
+            [
+                "教學方法",
+                "\n".join(
+                    [
+                        f"{i+1}. {method.title}: {method.explanation}"
+                        for i, method in enumerate(learning_asset.lesson_plan.teaching_methods)
+                    ]
+                ),
+            ],
+            [
+                "教學步驟",
+                "\n".join(
+                    [
+                        f"{i+1}. {step.title}: {step.explanation}"
+                        for i, step in enumerate(learning_asset.lesson_plan.teaching_steps)
+                    ]
+                ),
+            ],
+            [
+                "評量方式",
+                "\n".join(
+                    [
+                        f"{i+1}. {method.title}: {method.explanation}"
+                        for i, method in enumerate(
+                            learning_asset.lesson_plan.assessment_methods
+                        )
+                    ]
+                ),
+            ],
+        ]
+        for row in lesson_plan_data:
+            st.subheader(row[0])
+            st.write(row[1])
+            st.write("---")  # Add a separator line
+        # Display Worksheet
+        st.header("學習單")
+        st.subheader("一、練習題")
+        for i, question in enumerate(learning_asset.worksheet.practice_questions, 1):
+            st.write(f"{i}. {question.question}")
+        st.write("---")
+        st.subheader("二、活動指導")
+        for i, guide in enumerate(learning_asset.worksheet.activity_guides, 1):
+            st.write(f"{i}. {guide.description}")
+        st.write("---")
+        st.subheader("三、反思問題")
+        for i, question in enumerate(learning_asset.worksheet.reflection_questions, 1):
+            st.write(f"{i}. {question.question}")
+        st.write("---")
+        st.subheader("四、評量題")
+        for i, question in enumerate(learning_asset.worksheet.assessment_questions, 1):
+            st.write(f"{i}. {question.question}")
+        st.write("---")
+        st.subheader("五、自我評估表")
+        table_header = "| 評估項目 | 滿意(✓) | 需改進(✗) | 反思與改進方法 |"
+        table_separator = "|------------|---------|------------|----------------|"
+        table_rows = [
+            f"| {item.item} | | | |" for item in learning_asset.worksheet.self_assessment_items
+        ]
+        table_markdown = "\n".join([table_header, table_separator] + table_rows)
+        st.markdown(table_markdown)
+        st.write("---")
+        st.subheader("六、合作學習活動")
+        st.write(learning_asset.worksheet.collaborative_learning_activity)
