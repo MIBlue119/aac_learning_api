@@ -127,29 +127,6 @@ def markdown_to_pdf(learning_asset: LearningAsset):
         style.fontName = "NotoSansTC"
 
     elements = []
-
-    # # Lesson Plan
-    # elements.append(Paragraph("教案", styles["Heading1"]))
-    # elements.append(Paragraph(f"教案名稱: {learning_asset.lesson_plan.title}", styles["Heading2"]))
-    
-    # elements.append(Paragraph("教學目標", styles["Heading2"]))
-    # for objective in learning_asset.lesson_plan.objectives:
-    #     elements.append(Paragraph(f"• {objective}", styles["CustomStyle"]))
-    
-    # elements.append(Paragraph("教學內容", styles["Heading2"]))
-    # elements.append(Paragraph(learning_asset.lesson_plan.content, styles["CustomStyle"]))
-    
-    # elements.append(Paragraph("教學方法", styles["Heading2"]))
-    # for method in learning_asset.lesson_plan.teaching_methods:
-    #     elements.append(Paragraph(f"{method.title}: {method.explanation}", styles["CustomStyle"]))
-    
-    # elements.append(Paragraph("教學步驟", styles["Heading2"]))
-    # for step in learning_asset.lesson_plan.teaching_steps:
-    #     elements.append(Paragraph(f"{step.title}: {step.explanation}", styles["CustomStyle"]))
-    
-    # elements.append(Paragraph("評量方式", styles["Heading2"]))
-    # for method in learning_asset.lesson_plan.assessment_methods:
-    #     elements.append(Paragraph(f"{method.title}: {method.explanation}", styles["CustomStyle"]))
     
     # Lesson Plan Title
     elements.append(Paragraph("教案", styles["Title"]))
