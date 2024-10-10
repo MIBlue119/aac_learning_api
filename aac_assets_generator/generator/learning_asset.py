@@ -40,7 +40,7 @@ class LearningAssetGenerator:
             logger.error(f"生成學習單時發生錯誤: {str(e)}")
             return None
 
-    def markdown_to_pdf(learning_asset: LearningAsset):
+    def markdown_to_pdf(self,learning_asset: LearningAsset):
         buffer = io.BytesIO()
         doc = SimpleDocTemplate(buffer, pagesize=letter)
 
