@@ -15,6 +15,8 @@ from aac_assets_generator.utils import (
     get_board_prompt_word_data_async,
     get_user_study_sheet_data_async,
     parse_user_data,
+    combine_pdf_buffers,
+    export_assets_pdf
 )
 
 # Add this near the top of your script, after the imports
@@ -75,7 +77,10 @@ def main():
                 learning_asset, learning_evaluate = asyncio.run(process_request(api_key, board_id))
                 st.session_state.learning_asset = learning_asset
                 st.session_state.learning_evaluate = learning_evaluate
-
+                asset_elements = learningasset_generator.markdown_to_pdf(learning_asset)
+                evaluate_elements= learningevaluate_generator.markdown_to_pdf(learning_evaluate)
+                combined_pdf_buffer = combine_pdf_buffers(asset_elements, evaluate_elements)
+                export_assets_pdf(combined_pdf_buffer)
         else:
             learning_asset = st.session_state.learning_asset
             learning_evaluate = st.session_state.learning_evaluate

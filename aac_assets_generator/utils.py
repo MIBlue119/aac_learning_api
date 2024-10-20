@@ -1,5 +1,9 @@
 import json
-
+import io
+import streamlit as st
+from reportlab.platypus import SimpleDocTemplate
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import PageBreak
 
 async def get_user_study_sheet_data_async(session, api_key):
     url = "https://aaclearningbackend.azurewebsites.net/api/WebAAC/GetUserStudySheetData"
@@ -52,3 +56,21 @@ def parse_user_data(user_data):
     """
 
     return case_info
+
+
+def combine_pdf_buffers(asset_elements, evaluate_elements):
+    combined_elements = asset_elements + evaluate_elements
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=letter)
+    doc.build(combined_elements)
+    
+    return buffer
+
+def export_assets_pdf(buffer):
+    st.subheader("匯出學習單/教材/評估表")
+    st.download_button(
+        label="下載 PDF",
+        data=buffer,
+        file_name="learning_assets_evaluation.pdf",
+        mime="application/pdf",
+    )

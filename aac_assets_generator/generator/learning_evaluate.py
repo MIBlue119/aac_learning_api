@@ -41,8 +41,6 @@ class LearningEvaluateGenerator:
             return None
         
     def markdown_to_pdf(self,learning_evaluate: EvaluationAssetTable):
-        buffer = io.BytesIO()
-        doc = SimpleDocTemplate(buffer, pagesize=letter)
         pdfmetrics.registerFont(TTFont("NotoSansTC", "NotoSansTC-Regular.ttf"))
         styles = getSampleStyleSheet()
         styles.add(
@@ -62,36 +60,6 @@ class LearningEvaluateGenerator:
         elements.append(Paragraph("評估表", styles["Title"]))
         elements.append(Paragraph(f"{learning_evaluate.evaluation_asset_title}", styles["Heading1"]))
 
-        # # Lesson evaluate Table
-        # lesson_evaluate_data = [
-        #     [
-        #         "評量項目", "評量指標" , "優良（4分）", "良好（3分）", "尚可（2分）", "待加強（1分）"
-        #     ]
-        # ]
-        # for item in learning_evaluate.evaluation_items:
-        #     lesson_evaluate_data.append([
-        #         f"{item.evaluation_item_title}",
-        #         f"{item.evaluation_metric}",
-        #         f"{item.score_descriptions.excellent_with_score_4}",
-        #         f"{item.score_descriptions.good_with_score_3}",
-        #         f"{item.score_descriptions.fair_with_score_2}",
-        #         f"{item.score_descriptions.needs_improvement_with_score_1}|"
-        #     ])
-        # lesson_evaluate_table = Table(lesson_evaluate_data, colWidths=[3 * cm, 3 * cm, 3 * cm, 3 * cm, 3 * cm, 3 * cm])
-        # lesson_evaluate_table.setStyle(
-        #     TableStyle(
-        #         [
-        #             ("BACKGROUND", (0, 0), (0, -1), colors.lightgrey),
-        #             ("TEXTCOLOR", (0, 0), (-1, -1), colors.black),
-        #             ("ALIGN", (0, 0), (-1, -1), "LEFT"),
-        #             ("FONTNAME", (0, 0), (-1, -1), "NotoSansTC"),
-        #             ("FONTSIZE", (0, 0), (-1, -1), 10),
-        #             ("TOPPADDING", (0, 0), (-1, -1), 6),
-        #             ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
-        #             ("GRID", (0, 0), (-1, -1), 1, colors.black),
-        #         ]
-        #     )
-        # )
 
         # Define a paragraph style for wrapping text
         wrap_style = ParagraphStyle(
@@ -151,21 +119,10 @@ class LearningEvaluateGenerator:
         elements.append(Paragraph(f"- 良好: {2*(number_of_evaluation_items)}-{3*(number_of_evaluation_items-1)} 分,  表示學生能較好地完成步驟，但仍有待改進的部分。", styles["CustomStyle"]))
         elements.append(Paragraph(f"- 尚可: {1*(number_of_evaluation_items)}-{2*(number_of_evaluation_items-1)} 分,  表示學生能完成部分步驟，但正確性和時間效率需加強。", styles["CustomStyle"]))
         elements.append(Paragraph(f"- 待加強: {1*(number_of_evaluation_items-1)} 分,  表示學生需更多練習和輔助以掌握技巧。", styles["CustomStyle"]))
-        doc.build(elements)
-        buffer.seek(0)
-        return buffer
+        return elements
 
     def render_at_streamlit(self, learning_evaluate):
         st.success("評估表已生成!")
-        # Export options
-        st.subheader("匯出評估表")
-        pdf_buffer = self.markdown_to_pdf(learning_evaluate)
-        st.download_button(
-            label="下載 PDF",
-            data=pdf_buffer,
-            file_name="learning_evaluation.pdf",
-            mime="application/pdf",
-        )
         st.header("評估表")
         lesson_plan_data = [
             ["評估主題", learning_evaluate.evaluation_asset_title],

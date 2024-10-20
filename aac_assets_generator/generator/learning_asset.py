@@ -41,8 +41,6 @@ class LearningAssetGenerator:
             return None
 
     def markdown_to_pdf(self,learning_asset: LearningAsset):
-        buffer = io.BytesIO()
-        doc = SimpleDocTemplate(buffer, pagesize=letter)
 
         pdfmetrics.registerFont(TTFont("NotoSansTC", "NotoSansTC-Regular.ttf"))
 
@@ -192,23 +190,13 @@ class LearningAssetGenerator:
                 learning_asset.worksheet.collaborative_learning_activity, styles["CustomStyle"]
             )
         )
+        elements.append(PageBreak())
+        return elements
 
-        doc.build(elements)
-        buffer.seek(0)
-        return buffer
 
 
     def render_at_streamlit(self, learning_asset):
         st.success("學習單已生成!")
-        # Export options
-        st.subheader("匯出學習單")
-        pdf_buffer = self.markdown_to_pdf(learning_asset)
-        st.download_button(
-            label="下載 PDF",
-            data=pdf_buffer,
-            file_name="learning_asset.pdf",
-            mime="application/pdf",
-        )
         st.header("教案")
         lesson_plan_data = [
             ["教案名稱", learning_asset.lesson_plan.title],
