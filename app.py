@@ -16,7 +16,10 @@ from aac_assets_generator.utils import (
     get_user_study_sheet_data_async,
     parse_user_data,
     combine_pdf_buffers,
-    export_assets_pdf
+    export_assets_pdf,
+    generate_combined_docx,
+    export_asset_docx,
+    render_streamlit_interface
 )
 
 # Add this near the top of your script, after the imports
@@ -25,6 +28,13 @@ if "learning_asset" not in st.session_state:
 
 if "learning_evaluate" not in st.session_state:
     st.session_state.learning_evaluate = None
+
+if 'pdf_buffer' not in st.session_state:
+        st.session_state.pdf_buffer = None
+if 'docx_buffer' not in st.session_state:
+        st.session_state.docx_buffer = None
+if 'rendered' not in st.session_state:
+        st.session_state.rendered = False
 
 # 設置 logger
 logger.add("app.log", rotation="500 MB")
@@ -77,14 +87,63 @@ def main():
                 learning_asset, learning_evaluate = asyncio.run(process_request(api_key, board_id))
                 st.session_state.learning_asset = learning_asset
                 st.session_state.learning_evaluate = learning_evaluate
-                asset_elements = learningasset_generator.markdown_to_pdf(learning_asset)
-                evaluate_elements= learningevaluate_generator.markdown_to_pdf(learning_evaluate)
-                combined_pdf_buffer = combine_pdf_buffers(asset_elements, evaluate_elements)
-                export_assets_pdf(combined_pdf_buffer)
+                # combined_pdf_buffer = combine_pdf_buffers(asset_elements, evaluate_elements)
+                # export_assets_pdf(combined_pdf_buffer)
+
+                # docx_buffer = generate_combined_docx(learning_asset,learning_evaluate)
+                # export_asset_docx(docx_buffer)
+                # render_streamlit_interface(
+                #     learning_asset,learning_evaluate,
+                #     asset_elements, evaluate_elements
+                # )
+
+            # # 生成 PDF
+            # if st.session_state.pdf_buffer is None:
+            #     asset_elements = learningasset_generator.markdown_to_pdf(learning_asset)
+            #     evaluate_elements= learningevaluate_generator.markdown_to_pdf(learning_evaluate)
+
+            #     st.session_state.pdf_buffer = combine_pdf_buffers(
+            #         asset_elements,
+            #         evaluate_elements
+            #     )
+
+            # # 生成 DOCX
+            # if st.session_state.docx_buffer is None:
+            #     st.session_state.docx_buffer = generate_combined_docx(learning_asset, learning_evaluate)
+
+
+            # st.subheader("下載 PDF 版本")
+            # export_assets_pdf(st.session_state.pdf_buffer)
+
+            # st.subheader("下載 Word 版本")
+            #export_asset_docx(st.session_state.docx_buffer)
+
         else:
             learning_asset = st.session_state.learning_asset
             learning_evaluate = st.session_state.learning_evaluate
 
+        if isinstance(st.session_state.learning_asset, LearningAsset) and isinstance(st.session_state.learning_evaluate, EvaluationAssetTable):
+            # 生成 PDF
+            if st.session_state.pdf_buffer is None:
+                asset_elements = learningasset_generator.markdown_to_pdf(learning_asset)
+                evaluate_elements= learningevaluate_generator.markdown_to_pdf(learning_evaluate)
+
+                st.session_state.pdf_buffer = combine_pdf_buffers(
+                    asset_elements,
+                    evaluate_elements
+                )
+
+            # 生成 DOCX
+            if st.session_state.docx_buffer is None:
+                st.session_state.docx_buffer = generate_combined_docx(learning_asset, learning_evaluate)
+
+
+            #st.subheader("下載 PDF 版本")
+            export_assets_pdf(st.session_state.pdf_buffer)
+
+            #st.subheader("下載 Word 版本")
+            export_asset_docx(st.session_state.docx_buffer)
+       
         if isinstance(learning_asset, LearningAsset):
             learningasset_generator.render_at_streamlit(learning_asset)
         else:
