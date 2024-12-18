@@ -19,7 +19,8 @@ from aac_assets_generator.utils import (
     export_assets_pdf,
     generate_combined_docx,
     export_asset_docx,
-    render_streamlit_interface
+    render_streamlit_interface,
+    extract_main_title
 )
 
 # Add this near the top of your script, after the imports
@@ -28,6 +29,12 @@ if "learning_asset" not in st.session_state:
 
 if "learning_evaluate" not in st.session_state:
     st.session_state.learning_evaluate = None
+
+if "main_title" not in st.session_state:
+     st.session_state.main_title = None
+
+if "sub_title" not in st.session_state:
+     st.session_state.sub_title = None
 
 if 'pdf_buffer' not in st.session_state:
         st.session_state.pdf_buffer = None
@@ -66,11 +73,13 @@ async def process_request(api_key, board_id):
         learning_evaluate = await learningevaluate_generator.generate_learning_evaluate_async(
             info, prompt_data["promptContent"], prompt=prompt
         )
+        main_title = extract_main_title(prompt_data['promptContent'])
+        sub_title = prompt_data['promptTitle']
 
-        return learning_asset, learning_evaluate
+        return learning_asset, learning_evaluate, main_title, sub_title
     except Exception as e:
         logger.error(f"處理請求時發生錯誤: {str(e)}")
-        return None, None
+        return None, None, None, None
 
 
 def main():
@@ -82,50 +91,23 @@ def main():
     board_id = st.query_params.get("boardId", "")
 
     if api_key and board_id:
-        if st.session_state.learning_asset is None and st.session_state.learning_evaluate is None:
+        if st.session_state.learning_asset is None and st.session_state.learning_evaluate is None and st.session_state.main_title is None and st.session_state.sub_title is None:
             with st.spinner("正在處理您的請求..."):
-                learning_asset, learning_evaluate = asyncio.run(process_request(api_key, board_id))
+                learning_asset, learning_evaluate, main_title, sub_title = asyncio.run(process_request(api_key, board_id))
                 st.session_state.learning_asset = learning_asset
                 st.session_state.learning_evaluate = learning_evaluate
-                # combined_pdf_buffer = combine_pdf_buffers(asset_elements, evaluate_elements)
-                # export_assets_pdf(combined_pdf_buffer)
-
-                # docx_buffer = generate_combined_docx(learning_asset,learning_evaluate)
-                # export_asset_docx(docx_buffer)
-                # render_streamlit_interface(
-                #     learning_asset,learning_evaluate,
-                #     asset_elements, evaluate_elements
-                # )
-
-            # # 生成 PDF
-            # if st.session_state.pdf_buffer is None:
-            #     asset_elements = learningasset_generator.markdown_to_pdf(learning_asset)
-            #     evaluate_elements= learningevaluate_generator.markdown_to_pdf(learning_evaluate)
-
-            #     st.session_state.pdf_buffer = combine_pdf_buffers(
-            #         asset_elements,
-            #         evaluate_elements
-            #     )
-
-            # # 生成 DOCX
-            # if st.session_state.docx_buffer is None:
-            #     st.session_state.docx_buffer = generate_combined_docx(learning_asset, learning_evaluate)
-
-
-            # st.subheader("下載 PDF 版本")
-            # export_assets_pdf(st.session_state.pdf_buffer)
-
-            # st.subheader("下載 Word 版本")
-            #export_asset_docx(st.session_state.docx_buffer)
-
+                st.session_state.main_title = main_title
+                st.session_state.sub_title = sub_title
         else:
             learning_asset = st.session_state.learning_asset
             learning_evaluate = st.session_state.learning_evaluate
+            main_title = st.session_state.main_title
+            sub_title = st.session_state.sub_title
 
-        if isinstance(st.session_state.learning_asset, LearningAsset) and isinstance(st.session_state.learning_evaluate, EvaluationAssetTable):
+        if isinstance(st.session_state.learning_asset, LearningAsset) and isinstance(st.session_state.learning_evaluate, EvaluationAssetTable) and isinstance(st.session_state.main_title, str) and isinstance(st.session_state.sub_title, str):
             # 生成 PDF
             if st.session_state.pdf_buffer is None:
-                asset_elements = learningasset_generator.markdown_to_pdf(learning_asset)
+                asset_elements = learningasset_generator.markdown_to_pdf(learning_asset, main_title, sub_title)
                 evaluate_elements= learningevaluate_generator.markdown_to_pdf(learning_evaluate)
 
                 st.session_state.pdf_buffer = combine_pdf_buffers(
@@ -135,14 +117,14 @@ def main():
 
             # 生成 DOCX
             if st.session_state.docx_buffer is None:
-                st.session_state.docx_buffer = generate_combined_docx(learning_asset, learning_evaluate)
+                st.session_state.docx_buffer = generate_combined_docx(learning_asset, learning_evaluate, main_title, sub_title)
 
 
             #st.subheader("下載 PDF 版本")
-            export_assets_pdf(st.session_state.pdf_buffer)
+            export_assets_pdf(st.session_state.pdf_buffer, main_title, sub_title)
 
             #st.subheader("下載 Word 版本")
-            export_asset_docx(st.session_state.docx_buffer)
+            export_asset_docx(st.session_state.docx_buffer,  main_title, sub_title)
        
         if isinstance(learning_asset, LearningAsset):
             learningasset_generator.render_at_streamlit(learning_asset)

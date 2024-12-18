@@ -40,7 +40,7 @@ class LearningAssetGenerator:
             logger.error(f"生成學習單時發生錯誤: {str(e)}")
             return None
 
-    def markdown_to_pdf(self,learning_asset: LearningAsset):
+    def markdown_to_pdf(self,learning_asset: LearningAsset, main_title, sub_title):
 
         pdfmetrics.registerFont(TTFont("NotoSansTC", "NotoSansTC-Regular.ttf"))
 
@@ -61,7 +61,8 @@ class LearningAssetGenerator:
 
         elements = []
 
-        # Lesson Plan Title
+        elements.append(Paragraph(f"{main_title}-{sub_title}", styles["Title"]))
+        # Lesson Plan Title 
         elements.append(Paragraph("教案", styles["Title"]))
 
         # Lesson Plan Table

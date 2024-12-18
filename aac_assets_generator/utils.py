@@ -9,6 +9,14 @@ from aac_assets_generator.learning_evaluation_models import EvaluationAssetTable
 from docx import Document
 from docx.shared import Pt, Cm
 from docx.enum.text import WD_ALIGN_PARAGRAPH
+import re
+
+def extract_main_title(prompt_content):
+    pattern = r'([\u4e00-\u9fff]+系列)(?=的)'
+    match = re.search(pattern, prompt_content)
+    if match:
+        return match.group(1)[2:]
+    return "AAC系列"
 
 async def get_user_study_sheet_data_async(session, api_key):
     url = "https://aaclearningbackend.azurewebsites.net/api/WebAAC/GetUserStudySheetData"
@@ -71,16 +79,16 @@ def combine_pdf_buffers(asset_elements, evaluate_elements):
     
     return buffer
 
-def export_assets_pdf(buffer):
+def export_assets_pdf(buffer, main_title, sub_title):
     st.download_button(
         label="下載 PDF",
         data=buffer,
-        file_name="教案_學習單_評估表.pdf",
+        file_name=f"{main_title}-{sub_title}.pdf",
         mime="application/pdf",
         key="pdf_download"  
     )
 
-def generate_combined_docx(learning_asset: LearningAsset, learning_evaluate: EvaluationAssetTable):
+def generate_combined_docx(learning_asset: LearningAsset, learning_evaluate: EvaluationAssetTable, main_title, sub_title):
     doc = Document()
     
     # Set font for the entire document
@@ -88,7 +96,7 @@ def generate_combined_docx(learning_asset: LearningAsset, learning_evaluate: Eva
     style.font.name = 'Arial'
     style.font.size = Pt(11)
     # Add title
-    doc.add_heading('教案/學習單與評估表', level=0)    
+    doc.add_heading(f"{main_title}-{sub_title}", level=0)    
     
     # Add title
     doc.add_heading('教案', level=0)
@@ -187,11 +195,11 @@ def generate_combined_docx(learning_asset: LearningAsset, learning_evaluate: Eva
     docx_file.seek(0)
     return docx_file 
 
-def export_asset_docx(docx_buffer):
+def export_asset_docx(docx_buffer,  main_title, sub_title):
     st.download_button(
            label="下載 Word 文件",
            data=docx_buffer.getvalue(),
-           file_name="教案_學習單_評估表.docx",
+           file_name=f"{main_title}-{sub_title}.docx",
            mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
            key="docx_download"  # 添加唯一的 key
        )               
