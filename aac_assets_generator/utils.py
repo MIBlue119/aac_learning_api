@@ -99,7 +99,7 @@ def generate_combined_docx(learning_asset: LearningAsset, learning_evaluate: Eva
     doc.add_heading(f"{main_title}-{sub_title}", level=0)    
     
     # Add title
-    doc.add_heading('教案', level=0)
+    doc.add_heading('教案', level=1)
     # Add lesson plan table
     table = doc.add_table(rows=6, cols=2)
     table.style = 'Table Grid'
