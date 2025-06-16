@@ -120,6 +120,17 @@ class LearningEvaluateGenerator:
         elements.append(Paragraph(f"- 良好: {2*(number_of_evaluation_items)}-{3*(number_of_evaluation_items-1)} 分,  表示學生能較好地完成步驟，但仍有待改進的部分。", styles["CustomStyle"]))
         elements.append(Paragraph(f"- 尚可: {1*(number_of_evaluation_items)}-{2*(number_of_evaluation_items-1)} 分,  表示學生能完成部分步驟，但正確性和時間效率需加強。", styles["CustomStyle"]))
         elements.append(Paragraph(f"- 待加強: {1*(number_of_evaluation_items-1)} 分,  表示學生需更多練習和輔助以掌握技巧。", styles["CustomStyle"]))
+        elements.append(Paragraph("AI生成內容使用提醒", styles["Heading2"]))
+        elements.append(
+            Paragraph(
+                "使用提醒：本教案、學習單與評估表皆由人工智慧輔助生成，內容僅供專業參考。請依據實際學生狀況、課程目標與場地條件進行調整，並與專業特教人員或治療師討論後使用。", 
+                style=ParagraphStyle(
+                    'RedStyle',
+                    parent=styles['CustomStyle'],
+                    textColor=colors.red
+                )
+            )
+        )          
         return elements
 
     def render_at_streamlit(self, learning_evaluate):
