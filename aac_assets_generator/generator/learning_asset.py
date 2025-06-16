@@ -191,18 +191,7 @@ class LearningAssetGenerator:
             Paragraph(
                 learning_asset.worksheet.collaborative_learning_activity, styles["CustomStyle"]
             )
-        )
-        elements.append(Paragraph("AI生成內容使用提醒", styles["Heading2"]))
-        elements.append(
-            Paragraph(
-                "使用提醒：本教案、學習單與評估表皆由人工智慧輔助生成，內容僅供專業參考。請依據實際學生狀況、課程目標與場地條件進行調整，並與專業特教人員或治療師討論後使用。", 
-                style=ParagraphStyle(
-                    'RedStyle',
-                    parent=styles['CustomStyle'],
-                    textColor=colors.red
-                )
-            )
-        )        
+        )      
         elements.append(PageBreak())
         return elements
 
