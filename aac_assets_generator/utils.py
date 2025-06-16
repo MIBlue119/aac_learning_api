@@ -189,6 +189,8 @@ def generate_combined_docx(learning_asset: LearningAsset, learning_evaluate: Eva
         p = doc.add_paragraph()
         p.add_run('• ').bold = True
         p.add_run(criterion)
+    doc.add_heading('AI生成內容使用提醒', level=2)
+    doc.add_paragraph("使用提醒：本教案、學習單與評估表皆由人工智慧輔助生成，內容僅供專業參考。請依據實際學生狀況、課程目標與場地條件進行調整，並與專業特教人員或治療師討論後使用。")
     # Save the document to a BytesIO object
     docx_file = io.BytesIO()
     doc.save(docx_file)
