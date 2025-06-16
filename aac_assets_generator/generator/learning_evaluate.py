@@ -20,7 +20,7 @@ class LearningEvaluateGenerator:
         self.client = client
 
     async def generate_learning_evaluate_async(
-        self, case_info, learn_assets_contents, prompt, model="gpt-4o"
+        self, case_info, learn_assets_contents, prompt, model="gpt-4.1"
     ):
         full_prompt = prompt.replace("<case_info>", case_info)
         full_prompt = full_prompt.replace("<learn_assets_contents>", learn_assets_contents)
