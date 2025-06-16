@@ -20,7 +20,7 @@ class LearningAssetGenerator:
         self.client = client
 
     async def generate_learning_asset_async(
-        self, case_info, learn_assets_contents, prompt, model="gpt-4o-mini"
+        self, case_info, learn_assets_contents, prompt, model="o3"
     ):
         full_prompt = prompt.replace("<case_info>", case_info)
         full_prompt = full_prompt.replace("<learn_assets_contents>", learn_assets_contents)
