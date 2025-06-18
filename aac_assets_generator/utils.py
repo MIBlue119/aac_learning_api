@@ -88,7 +88,7 @@ def export_assets_pdf(buffer, main_title, sub_title):
         key="pdf_download"  
     )
 
-def generate_combined_docx(learning_asset: LearningAsset, learning_evaluate: EvaluationAssetTable, main_title, sub_title):
+def generate_combined_docx(learning_asset: LearningAsset, learning_evaluate: EvaluationAssetTable, main_title, sub_title, case_info):
     doc = Document()
     
     # Set font for the entire document
@@ -100,6 +100,8 @@ def generate_combined_docx(learning_asset: LearningAsset, learning_evaluate: Eva
     
     # Add title
     doc.add_heading('教案', level=1)
+    doc.add_heading('個案基本資料', level=2)
+    doc.add_paragraph(case_info)
     # Add lesson plan table
     table = doc.add_table(rows=6, cols=2)
     table.style = 'Table Grid'

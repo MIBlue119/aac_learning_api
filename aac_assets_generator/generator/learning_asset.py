@@ -9,6 +9,7 @@ from reportlab.lib.units import cm
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.platypus import PageBreak, Paragraph, SimpleDocTemplate, Table, TableStyle
+from reportlab.platypus import Spacer
 
 from aac_assets_generator.learning_asset_models import LearningAsset, LessonPlan, WorksheetSection
 import streamlit as st
@@ -36,12 +37,12 @@ class LearningAssetGenerator:
                 response_format=LearningAsset,
             )
             logger.info(f"response:{response}")
-            return response.choices[0].message.parsed
+            return response.choices[0].message.parsed, case_info
         except Exception as e:
             logger.error(f"生成學習單時發生錯誤: {str(e)}")
-            return None
+            return None, case_info
 
-    def markdown_to_pdf(self,learning_asset: LearningAsset, main_title, sub_title):
+    def markdown_to_pdf(self,learning_asset: LearningAsset, main_title, sub_title, case_info):
 
         pdfmetrics.registerFont(TTFont("NotoSansTC", "NotoSansTC-Regular.ttf"))
 
@@ -65,7 +66,10 @@ class LearningAssetGenerator:
         elements.append(Paragraph(f"{main_title}-{sub_title}", styles["Title"]))
         # Lesson Plan Title 
         elements.append(Paragraph("教案", styles["Title"]))
-
+        elements.append(Paragraph("個案基本資料", styles["Heading2"]))
+        for line in case_info.split('\n'):
+            elements.append(Paragraph(line.strip(), styles["CustomStyle"]))          
+        elements.append(Spacer(1, 12))
         # Lesson Plan Table
         lesson_plan_data = [
             ["教案名稱", Paragraph(learning_asset.lesson_plan.title, styles["CustomStyle"])],
@@ -144,7 +148,7 @@ class LearningAssetGenerator:
         # Add page break
         elements.append(PageBreak())
         # Worksheet
-        elements.append(Paragraph("學習單", styles["Heading1"]))
+        elements.append(Paragraph("學習單", styles["Title"]))
 
         elements.append(Paragraph("一、練習題", styles["Heading2"]))
         for count, question in enumerate(learning_asset.worksheet.practice_questions):
@@ -197,9 +201,13 @@ class LearningAssetGenerator:
 
 
 
-    def render_at_streamlit(self, learning_asset):
+    def render_at_streamlit(self, learning_asset, case_info):
         st.success("學習單已生成!")
         st.header("教案")
+        st.subheader("個案基本資料")
+        # Split the case_info string by newlines and display each line
+        for line in case_info.split('\n'):
+            st.write(line.strip())
         lesson_plan_data = [
             ["教案名稱", learning_asset.lesson_plan.title],
             ["教學目標", learning_asset.lesson_plan.objectives],

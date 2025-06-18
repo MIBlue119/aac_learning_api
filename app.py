@@ -42,6 +42,8 @@ if 'docx_buffer' not in st.session_state:
         st.session_state.docx_buffer = None
 if 'rendered' not in st.session_state:
         st.session_state.rendered = False
+if 'case_info' not in st.session_state:
+        st.session_state.case_info = None
 
 # 設置 logger
 logger.add("app.log", rotation="500 MB")
@@ -65,21 +67,21 @@ async def process_request(api_key, board_id):
         info = parse_user_data(user_data)
         prompt = AAC_TUTORIAL_PROMPT  # + prompt_data['promptContent']
 
-        learning_asset = await learningasset_generator.generate_learning_asset_async(
+        learning_asset, case_info = await learningasset_generator.generate_learning_asset_async(
             info, prompt_data["promptContent"], prompt=prompt
         )
 
         prompt = AAC_EVALUATION_PROMPT
-        learning_evaluate = await learningevaluate_generator.generate_learning_evaluate_async(
+        learning_evaluate, case_info = await learningevaluate_generator.generate_learning_evaluate_async(
             info, prompt_data["promptContent"], prompt=prompt
         )
         main_title = extract_main_title(prompt_data['promptContent'])
         sub_title = prompt_data['promptTitle']
 
-        return learning_asset, learning_evaluate, main_title, sub_title
+        return learning_asset, learning_evaluate, main_title, sub_title, case_info
     except Exception as e:
         logger.error(f"處理請求時發生錯誤: {str(e)}")
-        return None, None, None, None
+        return None, None, None, None, None, None
 
 
 def main():
@@ -91,23 +93,24 @@ def main():
     board_id = st.query_params.get("boardId", "")
 
     if api_key and board_id:
-        if st.session_state.learning_asset is None and st.session_state.learning_evaluate is None and st.session_state.main_title is None and st.session_state.sub_title is None:
+        if st.session_state.learning_asset is None and st.session_state.learning_evaluate is None and st.session_state.main_title is None and st.session_state.sub_title is None and st.session_state.case_info is None:
             with st.spinner("正在處理您的請求..."):
-                learning_asset, learning_evaluate, main_title, sub_title = asyncio.run(process_request(api_key, board_id))
+                learning_asset, learning_evaluate, main_title, sub_title, case_info = asyncio.run(process_request(api_key, board_id))
                 st.session_state.learning_asset = learning_asset
                 st.session_state.learning_evaluate = learning_evaluate
                 st.session_state.main_title = main_title
                 st.session_state.sub_title = sub_title
+                st.session_state.case_info = case_info
         else:
             learning_asset = st.session_state.learning_asset
             learning_evaluate = st.session_state.learning_evaluate
             main_title = st.session_state.main_title
             sub_title = st.session_state.sub_title
-
+            case_info = st.session_state.case_info
         if isinstance(st.session_state.learning_asset, LearningAsset) and isinstance(st.session_state.learning_evaluate, EvaluationAssetTable) and isinstance(st.session_state.main_title, str) and isinstance(st.session_state.sub_title, str):
             # 生成 PDF
             if st.session_state.pdf_buffer is None:
-                asset_elements = learningasset_generator.markdown_to_pdf(learning_asset, main_title, sub_title)
+                asset_elements = learningasset_generator.markdown_to_pdf(learning_asset, main_title, sub_title, case_info)
                 evaluate_elements= learningevaluate_generator.markdown_to_pdf(learning_evaluate)
 
                 st.session_state.pdf_buffer = combine_pdf_buffers(
@@ -117,7 +120,7 @@ def main():
 
             # 生成 DOCX
             if st.session_state.docx_buffer is None:
-                st.session_state.docx_buffer = generate_combined_docx(learning_asset, learning_evaluate, main_title, sub_title)
+                st.session_state.docx_buffer = generate_combined_docx(learning_asset, learning_evaluate, main_title, sub_title, case_info)
 
 
             #st.subheader("下載 PDF 版本")
@@ -127,7 +130,7 @@ def main():
             export_asset_docx(st.session_state.docx_buffer,  main_title, sub_title)
        
         if isinstance(learning_asset, LearningAsset):
-            learningasset_generator.render_at_streamlit(learning_asset)
+            learningasset_generator.render_at_streamlit(learning_asset, case_info)
         else:
             st.error("生成學習單時發生錯誤，請檢查API密鑰和版面提示詞ID是否正確。")
 

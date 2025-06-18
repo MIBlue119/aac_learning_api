@@ -36,10 +36,10 @@ class LearningEvaluateGenerator:
                 response_format=EvaluationAssetTable,
             )
             logger.info(f"response:{response}")
-            return response.choices[0].message.parsed
+            return response.choices[0].message.parsed, case_info
         except Exception as e:
             logger.error(f"生成學習單時發生錯誤: {str(e)}")
-            return None
+            return None, case_info
         
     def markdown_to_pdf(self,learning_evaluate: EvaluationAssetTable):
         pdfmetrics.registerFont(TTFont("NotoSansTC", "NotoSansTC-Regular.ttf"))
